@@ -4,6 +4,8 @@ const http = require('http');
 const net = require("net");
 const fs = require('fs');
 const date = new Date();
+const request = require('request');
+
 const querystring = require('querystring');
 let para = null;
 
@@ -15,7 +17,9 @@ const hydrogen = fetchHtmlFiles('./public/hydrogen.html');
 const styles = fetchHtmlFiles('./public/css/styles.css');
 
 const server = http.createServer( (req, res) => {
- switch(req.url){
+
+  // if (req.method === 'GET') {
+    switch(req.url){
     case "/index.html":
       para = index;
     break;
@@ -28,21 +32,57 @@ const server = http.createServer( (req, res) => {
     case "/css/styles.css":
       para = styles;
     break;
+    // need to work on this :
+    // case "/elements":
+    //   code in here;
+    // break;
     default:
      para = index;
   }
+// }
+
+if (req.method === 'POST') {
+  let body = [];
+  req.on('data', (chunk) => {
+    body.push(chunk.toString());
+  }).on('end', () => {
+    console.log(body);
+  });
+}
   header(para,res);
   res.end();
-}).listen(8080);;
+
+  // var headers = header(para, res);
+
+  // const options = {
+  //   url : req.url,
+  //   method : 'POST',
+  //   headers : headers,
+  //   form : {'key1' : 'val1', 'key2' : 'val2'}
+  // };
+
+  // request(options, (error, response, body) => {
+  //   if(!error && response.statusCode === 200) {
+  //     console.log(body);
+  //   }
+  // });
+
+}).listen(8080);
 
 function header(page, res){
   if(page === styles){
       res.writeHead(200, {'Content-Type': 'text/css'});
       res.write(para);
+      res.end();
   }else{
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.write(para);
+      res.end();
   }
 }
 
+const postCode = (codeStr) => {
+  let varData = querystring.stringify({
 
+  });
+};
