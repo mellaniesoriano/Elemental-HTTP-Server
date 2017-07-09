@@ -41,12 +41,34 @@ const server = http.createServer( (req, res) => {
   }
 // }
 
+const createElement = (elementName, elementSymbol, elementAtomicNumber, elementDescription) => {
+  return  `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <title>The Elements - ${elementName}</title>
+              <link rel="stylesheet" href="/public/css/styles.css">
+            </head>
+            <body>
+              <h1>${elementName}</h1>
+              <h2>${elementSymbol}</h2>
+              <h3>Atomic number ${elementAtomicNumber}</h3>
+              <p>${elementDescription}</p>
+              <p><a href="/">back</a></p>
+            </body>
+            </html>`;
+
+};
+
 if (req.method === 'POST') {
   let body = [];
-  req.on('data', (chunk) => {
-    body.push(chunk.toString());
-  }).on('end', () => {
-    console.log(body);
+  req.on('data', (data) => {
+    var chunk = data.toString();
+    var parsedChunk = querystring.parse(chunk);
+    body.push(parsedChunk);
+    console.log(createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription));
+    res.write(body);
+    res.end();
   });
 }
   header(para,res);
@@ -73,16 +95,16 @@ function header(page, res){
   if(page === styles){
       res.writeHead(200, {'Content-Type': 'text/css'});
       res.write(para);
-      res.end();
+
   }else{
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.write(para);
-      res.end();
+
   }
 }
 
-const postCode = (codeStr) => {
-  let varData = querystring.stringify({
+// const postCode = (codeStr) => {
+//   let varData = querystring.stringify({
 
-  });
-};
+//   });
+// };
