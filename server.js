@@ -1,32 +1,48 @@
 /* jshint esversion: 6 */
 
 const http = require('http');
+const net = require("net");
 const fs = require('fs');
+const date = new Date();
 const querystring = require('querystring');
+let para = null;
 
 const fetchHtmlFiles = (fileName) => fs.readFileSync(fileName);
 
-const indexHTML = fetchHtmlFiles('./public/index.html');
-const heliumHTML = fetchHtmlFiles('./public/helium.html');
-const hydrogenHTML = fetchHtmlFiles('./public/hydrogen.html');
-const cssStyles = fetchHtmlFiles('./public/css/styles.css');
+const index = fetchHtmlFiles('./public/index.html');
+const helium = fetchHtmlFiles('./public/helium.html');
+const hydrogen = fetchHtmlFiles('./public/hydrogen.html');
+const styles = fetchHtmlFiles('./public/css/styles.css');
 
 const server = http.createServer( (req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write(req.url);
-  res.destroy();
+ switch(req.url){
+    case "/index.html":
+      para = index;
+    break;
+    case "/helium.html":
+      para = helium;
+    break;
+    case "/hydrogen.html":
+      para = hydrogen;
+    break;
+    case "/css/styles.css":
+      para = styles;
+    break;
+    default:
+     para = index;
+  }
+  header(para,res);
+  res.end();
+}).listen(8080);;
 
+function header(page, res){
+  if(page === styles){
+      res.writeHead(200, {'Content-Type': 'text/css'});
+      res.write(para);
+  }else{
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(para);
+  }
+}
 
-}).listen(8080);
-
-const writeHeader = (res, status, fileType, fileName) => {
-  res.writeHead(`HTTP/1.1 ${status}
-Server: Mellanie's Super Awesome Server
-Date: ${new Date().toUTCString()};
-Content-Type: ${fileType}; charset=utf-8
-Content-Length: ${fileName.length}
-Connection: keep-alive
-
-${fileName}`);
-};
 
