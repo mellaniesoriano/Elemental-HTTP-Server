@@ -9,9 +9,9 @@ const querystring = require('querystring');
 let para = null;
 let body = [];
 var result = null;
+
 //Functions
 //
-
 const sort = (path,link)=>{
   return {
     path : path,
@@ -75,19 +75,17 @@ body.push(sort("/404.html", four0Four.toString()));
 const server = http.createServer( (req, res) => {
 //POST start
 if (req.method === 'POST') {
-    req.on('data', (data) => {
-      var chunk = data.toString();
-      var parsedChunk = querystring.parse(chunk);
-      var html = createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription);
-      fs.writeFile(`./public/${parsedChunk.elementName}.html`, html, (err) => {
-        if (err) throw err;
-          result = fs.readFileSync(`./public/${parsedChunk.elementName}.html`);
-          body.push(sort(`/${parsedChunk.elementName.toLowerCase()}.html`, result.toString()));
-          console.log(body);
+  req.on('data', (data) => {
+    var chunk = data.toString();
+    var parsedChunk = querystring.parse(chunk);
+    var html = createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription);
+    fs.writeFile(`./public/${parsedChunk.elementName}.html`, html, (err) => {
+      if (err) throw err;
+        result = fs.readFileSync(`./public/${parsedChunk.elementName}.html`);
+        body.push(sort(`/${parsedChunk.elementName.toLowerCase()}.html`, result.toString()));
       });
-    });
-
-  }//POST end
+  });
+}//POST end
 
 //GET start
   else if (req.method === 'GET') {
