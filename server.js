@@ -5,41 +5,23 @@ const net = require("net");
 const fs = require('fs');
 const date = new Date();
 const request = require('request');
-
 const querystring = require('querystring');
 let para = null;
+let body = [];
 
+//Functions
+//
 const fetchHtmlFiles = (fileName) => fs.readFileSync(fileName);
 
-const index = fetchHtmlFiles('./public/index.html');
-const helium = fetchHtmlFiles('./public/helium.html');
-const hydrogen = fetchHtmlFiles('./public/hydrogen.html');
-const styles = fetchHtmlFiles('./public/css/styles.css');
-
-const server = http.createServer( (req, res) => {
-
-  // if (req.method === 'GET') {
-    switch(req.url){
-    case "/index.html":
-      para = index;
-    break;
-    case "/helium.html":
-      para = helium;
-    break;
-    case "/hydrogen.html":
-      para = hydrogen;
-    break;
-    case "/css/styles.css":
-      para = styles;
-    break;
-    // need to work on this :
-    // case "/elements":
-    //   code in here;
-    // break;
-    default:
-     para = index;
+const header = (page, res) =>{
+  if(page === styles){
+      res.writeHead(200, {'Content-Type': 'text/css'});
+      res.write(para);
+  }else{
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(para);
   }
-// }
+};
 
 const createElement = (elementName, elementSymbol, elementAtomicNumber, elementDescription) => {
   return  `<!DOCTYPE html>
@@ -57,54 +39,96 @@ const createElement = (elementName, elementSymbol, elementAtomicNumber, elementD
               <p><a href="/">back</a></p>
             </body>
             </html>`;
-
 };
+// Maybe should go into an array and have the new ones be dynamically push into the array aswell?
+//
+const index = fetchHtmlFiles('./public/index.html');
+const helium = fetchHtmlFiles('./public/helium.html');
+const hydrogen = fetchHtmlFiles('./public/hydrogen.html');
+const styles = fetchHtmlFiles('./public/css/styles.css');
+const four0Four = fetchHtmlFiles('./public/404.html');
 
-if (req.method === 'POST') {
-  let body = [];
-  req.on('data', (data) => {
-    var chunk = data.toString();
-    var parsedChunk = querystring.parse(chunk);
-    body.push(parsedChunk);
-    console.log(createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription));
-    res.write(body);
-    res.end();
-  });
-}
-  header(para,res);
-  res.end();
+//Create HTTP server
+//
+const server = http.createServer( (req, res) => {
+//GET start
+  if (req.method === 'GET') {
+    switch(req.url){
+      case "/":
+        para = index;
+      break;
+      case "/index.html":
+        para = index;
+      break;
+      case "/helium.html":
+        para = helium;
+      break;
+      case "/hydrogen.html":
+        para = hydrogen;
+      break;
+      case "/css/styles.css":
+        para = styles;
+      break;
+      // need to work on this :
+      // case "/elements":
+      //   code in here;
+      // break;
+      default:
+       para = four0Four;
+    }
+   header(para,res);
+  }//GET end
 
-  // var headers = header(para, res);
-
-  // const options = {
-  //   url : req.url,
-  //   method : 'POST',
-  //   headers : headers,
-  //   form : {'key1' : 'val1', 'key2' : 'val2'}
-  // };
-
-  // request(options, (error, response, body) => {
-  //   if(!error && response.statusCode === 200) {
-  //     console.log(body);
-  //   }
-  // });
-
-}).listen(8080);
-
-function header(page, res){
-  if(page === styles){
-      res.writeHead(200, {'Content-Type': 'text/css'});
-      res.write(para);
-
-  }else{
+//POST start
+  else if (req.method === 'POST') {
+    var result = null;
+    req.on('data', (data) => {
+      var chunk = data.toString();
+      var parsedChunk = querystring.parse(chunk);
+      body.push(parsedChunk);
+      var html = createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription);
+      fs.writeFile(`./public/${parsedChunk.elementName}.html`, html, (err) => {
+        if (err) throw err;
+        result = fs.readFileSync(`./public/${parsedChunk.elementName}.html`);
+      });
+    });
+    setTimeout(() =>{
+   //if(req.url === `/${parsedChunk.elementName}.html`){
+      console.log(req.url.split(' ')[0]);
       res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(para);
+      res.write(result.toString());
+      res.end();
+   //}
+    },10);
+  }//POST end
 
-  }
-}
+  setTimeout(() =>{
+    res.end();
+    console.log(body);
+  },10);
+}).listen(8080);
+//Server end
 
-// const postCode = (codeStr) => {
-//   let varData = querystring.stringify({
 
-//   });
-// };
+
+
+//Old POST code just using it for refererence.
+
+  //  else if (req.method === 'POST') {
+  //   let body = [];
+  //   req.on('data', (data) => {
+  //     var result = null;
+  //     var chunk = data.toString();
+  //     var parsedChunk = querystring.parse(chunk);
+  //     body.push(parsedChunk);
+  //     var html = createElement(parsedChunk.elementName, parsedChunk.elementSymbol, parsedChunk.elementAtomicNumber, parsedChunk.elementDescription);
+  //     console.log(typeof html);
+  //     fs.writeFile(`./public/${parsedChunk.elementName}.html`, html, (err) => {
+  //       if (err) throw err;
+  //       result =fs.readFileSync(`./public/${parsedChunk.elementName}.html`);
+  //     });
+  //     res.write(header(result, res));
+  //   });
+  // }
+  // res.end();
+  // }).listen(8080);
