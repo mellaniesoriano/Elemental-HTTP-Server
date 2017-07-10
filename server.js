@@ -89,11 +89,11 @@ if (req.method === 'POST') {
 //GET start
   else if (req.method === 'GET') {
     switch(req.url){
-      case " ":
-        para = four0four;
+      case "/css/styles.css":
+        para = styles;
         break;
       default:
-        para = styles;
+        para = four0Four;
     }
    urlChecker(req.url);
    header(para,res);
