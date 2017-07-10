@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 const http = require('http');
-const net = require("net");
 const fs = require('fs');
 const date = new Date();
 const request = require('request');
@@ -66,7 +65,7 @@ body.push(sort("/helium.html", helium.toString()));
 const hydrogen = fetchHtmlFiles('./public/hydrogen.html');
 body.push(sort("/hydrogen.html", hydrogen.toString()));
 const styles = fetchHtmlFiles('./public/css/styles.css');
-body.push(sort("/styles.html", styles.toString()));
+body.push(sort("/styles.css", styles.toString()));
 const four0Four = fetchHtmlFiles('./public/404.html');
 body.push(sort("/404.html", four0Four.toString()));
 
@@ -89,6 +88,13 @@ if (req.method === 'POST') {
 
 //GET start
   else if (req.method === 'GET') {
+    switch(req.url){
+      case " ":
+        para = four0four;
+        break;
+      default:
+        para = styles;
+    }
    urlChecker(req.url);
    header(para,res);
   }//GET end
@@ -99,6 +105,4 @@ if (req.method === 'POST') {
   },10);
 }).listen(8080);
 //Server end
-
-
 
