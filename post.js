@@ -3,6 +3,7 @@ const http = require('http');
 const fs = require('fs');
 const querystring = require('querystring');
 const createElements = require('./templateBuilder');
+const pathArray = [];
 
 module.exports = (req, res, data) => {
   let elementChunk = querystring.parse(data.toString());
@@ -13,8 +14,10 @@ module.exports = (req, res, data) => {
 
   // creates new elements
   let newElements = fs.createWriteStream(`./public/${elementName}.html`);
-  newElements.write(createElements.templateBuilder(elementName, elementSymbol, elementAtomicNumber, elementDescription));
+  let makeHtml = createElements.templateBuilder(elementName, elementSymbol, elementAtomicNumber, elementDescription);
+  newElements.write(makeHtml);
   let readingIndex = fs.readFileSync('./public/index.html', 'utf-8');
+  pathArray.push(`/${elementName.toLowerCase()}.html`);
   // adds new link to index.html
   createElements.htmlLink(elementName);
 
